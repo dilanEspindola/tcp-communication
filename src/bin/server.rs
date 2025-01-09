@@ -29,9 +29,8 @@ fn main() -> std::io::Result<()> {
 
     for stream in listener.incoming() {
         match stream {
-            Ok(stream) => {
-                handle_client_connection(stream);
-            }
+            Ok(stream) => handle_client_connection(stream),
+
             Err(e) => {
                 eprintln!("failed to accept: {}", e);
             }

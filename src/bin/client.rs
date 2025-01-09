@@ -10,22 +10,27 @@ struct Message {
 }
 
 fn main() -> std::io::Result<()> {
-    let mut stream = TcpStream::connect("127.0.0.1:4000")?;
+    loop {
+        let mut stream = TcpStream::connect("127.0.0.1:4000")?;
+        println!("connected to {}", stream.peer_addr()?);
+        let mut input = String::new();
 
-    println!("connected to {}", stream.peer_addr()?);
+        std::io::stdin().read_line(&mut input).unwrap();
 
-    let user = Message {
-        message: String::from("helloooo"),
-        user: Uuid::new_v4(),
-    };
-    let serialized_user = serde_json::to_string(&user).unwrap();
+        let user = Message {
+            message: input.trim().to_string(),
+            user: Uuid::new_v4(),
+        };
 
-    stream.write_all(serialized_user.as_bytes())?;
+        let serialized_user = serde_json::to_string(&user).unwrap();
 
-    let buffer = [0; 128];
-    let rcv = stream.read(&mut [0; 128])?;
+        stream.write_all(serialized_user.as_bytes())?;
 
-    println!("received {}", String::from_utf8_lossy(&buffer[..rcv]));
+        let buffer = [0; 128];
+        let rcv = stream.read(&mut [0; 128])?;
 
-    Ok(())
+        println!("received {}", String::from_utf8_lossy(&buffer[..rcv]));
+    }
+
+    // Ok(())
 }
